@@ -6,36 +6,35 @@ public class Main {
     public static void main(String[] args) {
         PlantList plantList = new PlantList();
         try {
-            // Načtení seznamu rostlin ze souboru
-            plantList.loadFromFile("C:/Users/m_zel/IdeaProjects/Java_Homework5/kvetiny.txt");
+            // Load plant list from file
+            plantList.loadFromFile("kvetiny.txt");
 
-
-            // Výpis informací o zálivce pro všechny rostliny
+            // Print watering info for all plants
             List<Plant> allPlants = plantList.getAllPlants();
             for (Plant plant : allPlants) {
                 System.out.println(plant.getWateringInfo());
             }
 
-            // Přidání dvou nových rostlin
+            // Add two new plants
             plantList.addPlant(new Plant("Růže", "Krásná růže", LocalDate.now(), LocalDate.now(), 3));
             plantList.addPlant(new Plant("Kaktus", "Nenáročný", LocalDate.now(), LocalDate.now(), 14));
 
-            // Odebrání jedné rostliny
+            // Remove one plant
             plantList.removePlant(0);
 
-            // Uložení seznamu do nového souboru
+            // Save the updated list to a new file
             plantList.saveToFile("novy_seznam.txt");
 
-            // Seřazení podle názvu a výpis
+            // Sort by name and print
             plantList.sortByName();
-            System.out.println("Seřazeno podle názvu:");
+            System.out.println("Sorted by name:");
             for (Plant plant : plantList.getAllPlants()) {
                 System.out.println(plant.getWateringInfo());
             }
 
-            // Seřazení podle data poslední zálivky a výpis
+            // Sort by last watering date and print
             plantList.sortByLastWatering();
-            System.out.println("Seřazeno podle data poslední zálivky:");
+            System.out.println("Sorted by last watering date:");
             for (Plant plant : plantList.getAllPlants()) {
                 System.out.println(plant.getWateringInfo());
             }

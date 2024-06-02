@@ -1,78 +1,69 @@
 import java.io.*;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Scanner;
 
 public class PlantList {
-    private List<Plant> plants;
+    private List<Plant> plants = new ArrayList<>();
 
-    public PlantList() {
-        plants = new ArrayList<>();
+    public void loadFromFile(String fileName) throws IOException, PlantException {
+        try (Scanner scanner = new Scanner(new BufferedReader(new FileReader(fileName)))) {
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine();
+                String[] parts = line.split("\t");
+                if (parts.length != 5) {
+                    throw new PlantException("Invalid file format: incorrect number of fields in line: " + line);
+                }
+                String name = parts[0];
+                String description = parts[1];
+                int frequency = Integer.parseInt(parts[2]);
+                LocalDate planted = LocalDate.parse(parts[3]);
+                LocalDate lastWatering = LocalDate.parse(parts[4]);
+                plants.add(new Plant(name, description, planted, lastWatering, frequency));
+            }
+        } catch (FileNotFoundException e) {
+            throw new PlantException("File not found: " + fileName);
+        } catch (DateTimeParseException e) {
+            throw new PlantException("Invalid date format in file: " + fileName);
+        } catch (NumberFormatException e) {
+            throw new PlantException("Invalid number format in file: " + fileName);
+        }
     }
 
-    // Přidání nové rostliny
+    public List<Plant> getAllPlants() {
+        return new ArrayList<>(plants);
+    }
+
     public void addPlant(Plant plant) {
         plants.add(plant);
     }
 
-    // Získání rostliny na zadaném indexu
-    public Plant getPlant(int index) {
-        return plants.get(index);
-    }
-
-    // Odebrání rostliny ze seznamu
     public void removePlant(int index) {
-        plants.remove(index);
+        if (index >= 0 && index < plants.size()) {
+            plants.remove(index);
+        }
     }
 
-    // Metoda vracející všechny rostliny
-    public List<Plant> getAllPlants() {
-        return plants;
-    }
-
-    // Načtení rostlin ze souboru
-    public void loadFromFile(String filename) throws IOException, PlantException {
-        BufferedReader reader = new BufferedReader(new FileReader(filename));
-        String line;
-        while ((line = reader.readLine()) != null) {
-            String[] parts = line.split("\t");
-            if (parts.length != 5) {
-                throw new PlantException("Invalid file format");
+    public void saveToFile(String fileName) throws IOException {
+        try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(fileName)))) {
+            for (Plant plant : plants) {
+                writer.println(
+                        plant.getName() + "\t" +
+                                plant.getDescription() + "\t" +
+                                plant.getWateringFrequency() + "\t" +
+                                plant.getPlantedDate() + "\t" +
+                                plant.getLastWateringDate());
             }
-            String name = parts[0];
-            String notes = parts[1];
-            int wateringFrequency = Integer.parseInt(parts[2]);
-            LocalDate planted = LocalDate.parse(parts[3]);
-            LocalDate lastWatering = LocalDate.parse(parts[4]);
-            Plant plant = new Plant(name, notes, planted, lastWatering, wateringFrequency);
-            plants.add(plant);
         }
-        reader.close();
     }
 
-    // Uložení seznamu rostlin do souboru
-    public void saveToFile(String filename) throws IOException {
-        BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
-        for (Plant plant : plants) {
-            writer.write(String.join("\t",
-                    plant.getName(),
-                    plant.getNotes(),
-                    String.valueOf(plant.getWateringFrequency()),
-                    plant.getPlanted().toString(),
-                    plant.getLastWatering().toString()));
-            writer.newLine();
-        }
-        writer.close();
-    }
-
-    // Seřazení rostlin podle názvu
     public void sortByName() {
         plants.sort((p1, p2) -> p1.getName().compareTo(p2.getName()));
     }
 
-    // Seřazení rostlin podle data poslední zálivky
     public void sortByLastWatering() {
-        plants.sort((p1, p2) -> p1.getLastWatering().compareTo(p2.getLastWatering()));
+        plants.sort((p1, p2) -> p1.getLastWateringDate().compareTo(p2.getLastWateringDate()));
     }
 }
