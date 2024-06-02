@@ -6,42 +6,59 @@ public class Main {
     public static void main(String[] args) {
         PlantList plantList = new PlantList();
         try {
-            // Načtení seznamu rostlin ze souboru
-            plantList.loadFromFile("C:/Users/m_zel/IdeaProjects/Java_Homework5/kvetiny.txt");
+            // Load plant list from file
+            plantList.loadFromFile("kvetiny.txt");
 
-
-            // Výpis informací o zálivce pro všechny rostliny
+            // Print watering info for all plants
+            System.out.println("Watering info for all plants:");
             List<Plant> allPlants = plantList.getAllPlants();
             for (Plant plant : allPlants) {
                 System.out.println(plant.getWateringInfo());
             }
 
-            // Přidání dvou nových rostlin
+            // Add two new plants
+            System.out.println("\nAdding two new plants...");
             plantList.addPlant(new Plant("Růže", "Krásná růže", LocalDate.now(), LocalDate.now(), 3));
             plantList.addPlant(new Plant("Kaktus", "Nenáročný", LocalDate.now(), LocalDate.now(), 14));
 
-            // Odebrání jedné rostliny
+            // Print updated list
+            System.out.println("Updated plant list:");
+            allPlants = plantList.getAllPlants();
+            for (Plant plant : allPlants) {
+                System.out.println(plant.getWateringInfo());
+            }
+
+            // Remove one plant
+            System.out.println("\nRemoving the first plant...");
             plantList.removePlant(0);
 
-            // Uložení seznamu do nového souboru
+            // Print list after removal
+            System.out.println("Plant list after removal:");
+            allPlants = plantList.getAllPlants();
+            for (Plant plant : allPlants) {
+                System.out.println(plant.getWateringInfo());
+            }
+
+            // Save the updated list to a new file
+            System.out.println("\nSaving the updated list to 'novy_seznam.txt'...");
             plantList.saveToFile("novy_seznam.txt");
 
-            // Seřazení podle názvu a výpis
+            // Sort by name and print
+            System.out.println("\nSorting plants by name:");
             plantList.sortByName();
-            System.out.println("Seřazeno podle názvu:");
             for (Plant plant : plantList.getAllPlants()) {
                 System.out.println(plant.getWateringInfo());
             }
 
-            // Seřazení podle data poslední zálivky a výpis
+            // Sort by last watering date and print
+            System.out.println("\nSorting plants by last watering date:");
             plantList.sortByLastWatering();
-            System.out.println("Seřazeno podle data poslední zálivky:");
             for (Plant plant : plantList.getAllPlants()) {
                 System.out.println(plant.getWateringInfo());
             }
 
-        } catch (IOException | PlantException e) {
-            e.printStackTrace();
+        } catch (PlantException e) {
+            System.err.println("Chyba: " + e.getMessage());
         }
     }
 }

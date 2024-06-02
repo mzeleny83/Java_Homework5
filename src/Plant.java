@@ -1,62 +1,82 @@
 import java.time.LocalDate;
 
-public class Plant {
+public class Plant implements Comparable<Plant> {
     private String name;
-    private String notes;
-    private LocalDate planted;
-    private LocalDate lastWatering;
-    private int wateringFrequency;
+    private String description;
+    private LocalDate plantingDate;
+    private LocalDate lastWateringDate;
+    private int wateringInterval;
 
-    // První konstruktor: nastavení všech atributů
-    public Plant(String name, String notes, LocalDate planted, LocalDate lastWatering, int wateringFrequency) throws PlantException {
-        if (wateringFrequency <= 0) {
-            throw new PlantException("Frequency of watering must be greater than 0");
-        }
-        if (lastWatering.isBefore(planted)) {
-            throw new PlantException("Last watering date cannot be before the planting date");
-        }
+    public Plant(String name, String description, LocalDate plantingDate, LocalDate lastWateringDate, int wateringInterval) throws PlantException {
+        if (name == null || name.isEmpty()) throw new PlantException("Název rostliny nesmí být prázdný.");
+        if (description == null || description.isEmpty()) throw new PlantException("Popis rostliny nesmí být prázdný.");
+        if (plantingDate == null) throw new PlantException("Datum zasazení nesmí být prázdné.");
+        if (lastWateringDate == null) throw new PlantException("Datum poslední zálivky nesmí být prázdné.");
+        if (wateringInterval <= 0) throw new PlantException("Interval zálivky musí být kladné číslo.");
+
         this.name = name;
-        this.notes = notes;
-        this.planted = planted;
-        this.lastWatering = lastWatering;
-        this.wateringFrequency = wateringFrequency;
+        this.description = description;
+        this.plantingDate = plantingDate;
+        this.lastWateringDate = lastWateringDate;
+        this.wateringInterval = wateringInterval;
     }
 
-    // Druhý konstruktor: poznámky prázdný řetězec, datum poslední zálivky dnešní datum
-    public Plant(String name, LocalDate planted, int wateringFrequency) throws PlantException {
-        this(name, "", planted, LocalDate.now(), wateringFrequency);
+    public String getName() {
+        return name;
     }
 
-    // Třetí konstruktor: výchozí frekvence 7 dnů, datum zasazení a zálivky na dnešní datum
-    public Plant(String name) throws PlantException {
-        this(name, "", LocalDate.now(), LocalDate.now(), 7);
+    public void setName(String name) throws PlantException {
+        if (name == null || name.isEmpty()) throw new PlantException("Název rostliny nesmí být prázdný.");
+        this.name = name;
     }
 
-    // Přístupové metody
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-
-    public String getNotes() { return notes; }
-    public void setNotes(String notes) { this.notes = notes; }
-
-    public LocalDate getPlanted() { return planted; }
-    public void setPlanted(LocalDate planted) { this.planted = planted; }
-
-    public LocalDate getLastWatering() { return lastWatering; }
-    public void setLastWatering(LocalDate lastWatering) { this.lastWatering = lastWatering; }
-
-    public int getWateringFrequency() { return wateringFrequency; }
-    public void setWateringFrequency(int wateringFrequency) throws PlantException {
-        if (wateringFrequency <= 0) {
-            throw new PlantException("Frequency of watering must be greater than 0");
-        }
-        this.wateringFrequency = wateringFrequency;
+    public String getDescription() {
+        return description;
     }
 
-    // Metoda vracející informace o zalévání
+    public void setDescription(String description) throws PlantException {
+        if (description == null || description.isEmpty()) throw new PlantException("Popis rostliny nesmí být prázdný.");
+        this.description = description;
+    }
+
+    public LocalDate getPlantingDate() {
+        return plantingDate;
+    }
+
+    public void setPlantingDate(LocalDate plantingDate) throws PlantException {
+        if (plantingDate == null) throw new PlantException("Datum zasazení nesmí být prázdné.");
+        this.plantingDate = plantingDate;
+    }
+
+    public LocalDate getLastWateringDate() {
+        return lastWateringDate;
+    }
+
+    public void setLastWateringDate(LocalDate lastWateringDate) throws PlantException {
+        if (lastWateringDate == null) throw new PlantException("Datum poslední zálivky nesmí být prázdné.");
+        this.lastWateringDate = lastWateringDate;
+    }
+
+    public int getWateringInterval() {
+        return wateringInterval;
+    }
+
+    public void setWateringInterval(int wateringInterval) throws PlantException {
+        if (wateringInterval <= 0) throw new PlantException("Interval zálivky musí být kladné číslo.");
+        this.wateringInterval = wateringInterval;
+    }
+
     public String getWateringInfo() {
-        LocalDate nextWatering = lastWatering.plusDays(wateringFrequency);
-        return "Plant: " + name + ", Last Watering: " + lastWatering + ", Next Watering: " + nextWatering;
+        return name + " (" + description + "): poslední zálivka " + lastWateringDate + ", zalévat každých " + wateringInterval + " dní.";
+    }
+
+    @Override
+    public int compareTo(Plant other) {
+        return this.name.compareTo(other.name);
+    }
+
+    @Override
+    public String toString() {
+        return name + ";" + description + ";" + plantingDate + ";" + lastWateringDate + ";" + wateringInterval;
     }
 }
-
