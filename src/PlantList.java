@@ -2,72 +2,68 @@ import java.io.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
+import java.util.Scanner;
 
 public class PlantList {
     private List<Plant> plants = new ArrayList<>();
 
-    public void loadFromFile(String filename) throws PlantException {
-        try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
-            String line;
-            int lineNumber = 0;
-            while ((line = br.readLine()) != null) {
-                lineNumber++;
-                String[] parts = line.split(";");
-                System.out.println("Line " + lineNumber + ": " + line);
-                System.out.println("Parts count: " + parts.length);
+    public void loadFromFile(String fileName) throws IOException, PlantException {
+        try (Scanner scanner = new Scanner(new BufferedReader(new FileReader(fileName)))) {
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine();
+                String[] parts = line.split("\t");
                 if (parts.length != 5) {
-                    throw new PlantException("Chybný formát souboru na řádku " + lineNumber + ": očekává se 5 částí oddělených středníkem.");
+                    throw new PlantException("Invalid file format: incorrect number of fields in line: " + line);
                 }
-                try {
-                    String name = parts[0];
-                    String description = parts[1];
-                    LocalDate plantingDate = LocalDate.parse(parts[2]);
-                    LocalDate lastWateringDate = LocalDate.parse(parts[3]);
-                    int wateringInterval = Integer.parseInt(parts[4]);
-                    plants.add(new Plant(name, description, plantingDate, lastWateringDate, wateringInterval));
-                } catch (DateTimeParseException e) {
-                    throw new PlantException("Chybný formát datumu na řádku " + lineNumber + ": " + e.getMessage());
-                } catch (NumberFormatException e) {
-                    throw new PlantException("Chybný formát čísla na řádku " + lineNumber + ": " + e.getMessage());
-                }
+                String name = parts[0];
+                String description = parts[1];
+                int frequency = Integer.parseInt(parts[2]);
+                LocalDate planted = LocalDate.parse(parts[3]);
+                LocalDate lastWatering = LocalDate.parse(parts[4]);
+                plants.add(new Plant(name, description, planted, lastWatering, frequency));
             }
-        } catch (IOException e) {
-            throw new PlantException("Chyba při načítání souboru: " + e.getMessage());
+        } catch (FileNotFoundException e) {
+            throw new PlantException("File not found: " + fileName);
+        } catch (DateTimeParseException e) {
+            throw new PlantException("Invalid date format in file: " + fileName);
+        } catch (NumberFormatException e) {
+            throw new PlantException("Invalid number format in file: " + fileName);
         }
-    }
-
-    public void saveToFile(String filename) throws PlantException {
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(filename))) {
-            for (Plant plant : plants) {
-                bw.write(plant.toString());
-                bw.newLine();
-            }
-        } catch (IOException e) {
-            throw new PlantException("Chyba při ukládání souboru: " + e.getMessage());
-        }
-    }
-
-    public void addPlant(Plant plant) {
-        plants.add(plant);
-    }
-
-    public void removePlant(int index) throws PlantException {
-        if (index < 0 || index >= plants.size()) throw new PlantException("Neplatný index pro odstranění rostliny.");
-        plants.remove(index);
     }
 
     public List<Plant> getAllPlants() {
         return new ArrayList<>(plants);
     }
 
+    public void addPlant(Plant plant) {
+        plants.add(plant);
+    }
+
+    public void removePlant(int index) {
+        if (index >= 0 && index < plants.size()) {
+            plants.remove(index);
+        }
+    }
+
+    public void saveToFile(String fileName) throws IOException {
+        try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(fileName)))) {
+            for (Plant plant : plants) {
+                writer.println(
+                        plant.getName() + "\t" +
+                                plant.getDescription() + "\t" +
+                                plant.getWateringFrequency() + "\t" +
+                                plant.getPlantedDate() + "\t" +
+                                plant.getLastWateringDate());
+            }
+        }
+    }
+
     public void sortByName() {
-        Collections.sort(plants);
+        plants.sort((p1, p2) -> p1.getName().compareTo(p2.getName()));
     }
 
     public void sortByLastWatering() {
-        plants.sort(Comparator.comparing(Plant::getLastWateringDate));
+        plants.sort((p1, p2) -> p1.getLastWateringDate().compareTo(p2.getLastWateringDate()));
     }
 }
